@@ -6,6 +6,8 @@ set -e
 #
 # ./renew_cert.sh example.com me@example.com
 
+cd /home/protected/ssl
+
 # Check if certificate is in need of renewal.
 if openssl x509 -checkend 2592000 -noout -in $1.crt
 then
