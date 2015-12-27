@@ -303,7 +303,7 @@ def sign_csr(pubkey, csr, email=None, file_based=False):
         
         # Write the data to the location specified.
         out_file = open('/home/public/{}'.format(responses[n]['uri']), "w")
-        out_file.write(responses[n]['data']
+        out_file.write(responses[n]['data'])
         out_file.close()
         
         # Sleep for 5 seconds, to allow for the change to reach the server.
