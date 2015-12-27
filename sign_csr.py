@@ -3,7 +3,7 @@ import argparse, subprocess, json, os, urllib2, sys, base64, binascii, time, \
     hashlib, tempfile, re, copy, textwrap
 
 
-def sign_csr(pubkey, csr, email=None, file_based=False):
+def sign_csr(pubkey, csr, email=None):
     """Use the ACME protocol to get an ssl certificate signed by a
     certificate authority.
 
@@ -11,10 +11,6 @@ def sign_csr(pubkey, csr, email=None, file_based=False):
     :param string csr: Path to the certificate signing request.
     :param string email: An optional user account contact email
                          (defaults to webmaster@<shortest_domain>)
-    :param bool file_based: An optional flag indicating that the
-                            hosting should be file-based rather
-                            than providing a simple python HTTP
-                            server.
 
     :returns: Signed Certificate (PEM format)
     :rtype: string
@@ -436,6 +432,6 @@ $ python sign_csr.py --email you@example.com --public-key user.pub domain.csr > 
     parser.add_argument("csr_path", help="path to your certificate signing request")
 
     args = parser.parse_args()
-    signed_crt = sign_csr(args.public_key, args.csr_path, email=args.email, file_based=true)
+    signed_crt = sign_csr(args.public_key, args.csr_path, email=args.email)
     sys.stdout.write(signed_crt)
 
