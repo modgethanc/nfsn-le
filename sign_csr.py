@@ -169,10 +169,10 @@ def sign_csr(pubkey, csr, email=None):
 #    "\n".join("openssl dgst -sha256 -sign user.key -out {0} {1}".format(i['sig_name'], i['file_name']) for i in ids),
 #    csr_file_sig_name, csr_file_name))
 
-    subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(reg_file_sig_name, reg_file_name))
+    subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(reg_file_sig_name, reg_file_name), shell=True)
     for i in ids:
-        subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(i['sig_name'], i['file_name']))
-    subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(csr_file_sig_name, csr_file_name))
+        subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(i['sig_name'], i['file_name']), shell=True)
+    subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(csr_file_sig_name, csr_file_name), shell=True)
 
     #stdout = sys.stdout
     #sys.stdout = sys.stderr
@@ -282,7 +282,7 @@ def sign_csr(pubkey, csr, email=None):
 #        i['sig_name'], i['file_name']) for i in tests)))
 
     for i in tests:
-        subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(i['sig_name'], i['file_name']))
+        subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(i['sig_name'], i['file_name']), shell=True)
 
 #    stdout = sys.stdout
 #    sys.stdout = sys.stderr
