@@ -14,4 +14,4 @@ mkdir -p /home/public/.well-known/acme-challenge
 
 python sign_csr.py --public-key user.pub --email $2 $1.csr > $1.crt
 
-rm $1.csr *.json *.sig
+rm $1.csr *.json *.sig /home/public/.well-known/acme-challenge/*
