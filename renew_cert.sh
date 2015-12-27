@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 # Usage:
 #
 # ./renew_cert.sh example.com me@example.com
