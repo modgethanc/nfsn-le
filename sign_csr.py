@@ -397,11 +397,8 @@ def sign_csr(pubkey, csr, email=None, file_based=False):
     # Step 15: Convert the signed cert from DER to PEM
     sys.stderr.write("Certificate signed!\n")
 
-    if file_based:
-        sys.stderr.write("You can remove the acme-challenge file from your webserver now.\n")
-    else:
-        sys.stderr.write("You can stop running the python command on your server (Ctrl+C works).\n")
-
+    sys.stderr.write("You can remove the acme-challenge file from your webserver now.\n")
+    
     signed_der64 = base64.b64encode(signed_der)
     signed_pem = """\
 -----BEGIN CERTIFICATE-----
@@ -439,6 +436,6 @@ $ python sign_csr.py --email you@example.com --public-key user.pub domain.csr > 
     parser.add_argument("csr_path", help="path to your certificate signing request")
 
     args = parser.parse_args()
-    signed_crt = sign_csr(args.public_key, args.csr_path, email=args.email, file_based=args.file_based)
+    signed_crt = sign_csr(args.public_key, args.csr_path, email=args.email, file_based=true)
     sys.stdout.write(signed_crt)
 
