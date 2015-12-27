@@ -161,22 +161,27 @@ def sign_csr(pubkey, csr, email=None, file_based=False):
     csr_file_sig_name = os.path.basename(csr_file_sig.name)
 
     # Step 5: Ask the user to sign the registration and requests
-    sys.stderr.write("""\
-STEP 2: You need to sign some files (replace 'user.key' with your user private key).
+    #sys.stderr.write("""\
+#STEP 2: You need to sign some files (replace 'user.key' with your user private key).
+#
+#openssl dgst -sha256 -sign user.key -out {0} {1}
+#{2}
+#openssl dgst -sha256 -sign user.key -out {3} {4}
+#
+#""".format(
+#    reg_file_sig_name, reg_file_name,
+#    "\n".join("openssl dgst -sha256 -sign user.key -out {0} {1}".format(i['sig_name'], i['file_name']) for i in ids),
+#    csr_file_sig_name, csr_file_name))
 
-openssl dgst -sha256 -sign user.key -out {0} {1}
-{2}
-openssl dgst -sha256 -sign user.key -out {3} {4}
+    subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(reg_file_sig_name, reg_file_name))
+    for i in ids:
+        subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(i['sig_name'], i['file_name']))
+    subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(csr_file_sig_name, csr_file_name))
 
-""".format(
-    reg_file_sig_name, reg_file_name,
-    "\n".join("openssl dgst -sha256 -sign user.key -out {0} {1}".format(i['sig_name'], i['file_name']) for i in ids),
-    csr_file_sig_name, csr_file_name))
-
-    stdout = sys.stdout
-    sys.stdout = sys.stderr
-    raw_input("Press Enter when you've run the above commands in a new terminal window...")
-    sys.stdout = stdout
+    #stdout = sys.stdout
+    #sys.stdout = sys.stderr
+    #raw_input("Press Enter when you've run the above commands in a new terminal window...")
+    #sys.stdout = stdout
 
     # Step 6: Load the signatures
     reg_file_sig.seek(0)
@@ -271,19 +276,22 @@ openssl dgst -sha256 -sign user.key -out {3} {4}
         })
 
     # Step 9: Ask the user to sign the challenge responses
-    sys.stderr.write("""\
-STEP 3: You need to sign some more files (replace 'user.key' with your user private key).
+    #sys.stderr.write("""\
+#STEP 3: You need to sign some more files (replace 'user.key' with your user private key).
+#
+#{0}
+#
+#""".format(
+#    "\n".join("openssl dgst -sha256 -sign user.key -out {0} {1}".format(
+#        i['sig_name'], i['file_name']) for i in tests)))
 
-{0}
+    for i in tests:
+        subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(i['sig_name'], i['file_name']))
 
-""".format(
-    "\n".join("openssl dgst -sha256 -sign user.key -out {0} {1}".format(
-        i['sig_name'], i['file_name']) for i in tests)))
-
-    stdout = sys.stdout
-    sys.stdout = sys.stderr
-    raw_input("Press Enter when you've run the above commands in a new terminal window...")
-    sys.stdout = stdout
+#    stdout = sys.stdout
+#    sys.stdout = sys.stderr
+#    raw_input("Press Enter when you've run the above commands in a new terminal window...")
+#    sys.stdout = stdout
 
     # Step 10: Load the response signatures
     for n, i in enumerate(ids):
@@ -292,44 +300,36 @@ STEP 3: You need to sign some more files (replace 'user.key' with your user priv
 
     # Step 11: Ask the user to host the token on their server
     for n, i in enumerate(ids):
-        if file_based:
-            sys.stderr.write("""\
-STEP {0}: Please update your server to serve the following file at this URL:
+        
+        # Write the data to the location specified.
+        out_file = open('/home/public/{}'.format(responses[n]['uri']), "w")
+        out_file.write(responses[n]['data']
+        out_file.close()
+        
+        # Sleep for 5 seconds, to allow for the change to reach the server.
+        time.sleep(5)
+        
+        #sys.stderr.write("""\
+#STEP {0}: Please update your server to serve the following file at this URL:
+#
+#--------------
+#URL: http://{1}/{2}
+#File contents: \"{3}\"
+#--------------
+#
+#Notes:
+#- Do not include the quotes in the file.
+#- The file should be one line without any spaces.
+#
+#""".format(n + 4, i['domain'], responses[n]['uri'], responses[n]['data']))
 
---------------
-URL: http://{1}/{2}
-File contents: \"{3}\"
---------------
-
-Notes:
-- Do not include the quotes in the file.
-- The file should be one line without any spaces.
-
-""".format(n + 4, i['domain'], responses[n]['uri'], responses[n]['data']))
-
-            stdout = sys.stdout
-            sys.stdout = sys.stderr
-            raw_input("Press Enter when you've got the file hosted on your server...")
-            sys.stdout = stdout
-        else:
-            sys.stderr.write("""\
-STEP {0}: You need to run this command on {1} (don't stop the python command until the next step).
-
-sudo python -c "import BaseHTTPServer; \\
-    h = BaseHTTPServer.BaseHTTPRequestHandler; \\
-    h.do_GET = lambda r: r.send_response(200) or r.end_headers() or r.wfile.write('{2}'); \\
-    s = BaseHTTPServer.HTTPServer(('0.0.0.0', 80), h); \\
-    s.serve_forever()"
-
-""".format(n + 4, i['domain'], responses[n]['data']))
-
-            stdout = sys.stdout
-            sys.stdout = sys.stderr
-            raw_input("Press Enter when you've got the python command running on your server...")
-            sys.stdout = stdout
-
+        #stdout = sys.stdout
+        #sys.stdout = sys.stderr
+        #raw_input("Press Enter when you've got the file hosted on your server...")
+        #sys.stdout = stdout
+        
         # Step 12: Let the CA know you're ready for the challenge
-        sys.stderr.write("Requesting verification for {0}...\n".format(i['domain']))
+        #sys.stderr.write("Requesting verification for {0}...\n".format(i['domain']))
         test_data = json.dumps({
             "header": header,
             "protected": tests[n]['protected64'],
@@ -416,10 +416,7 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="""\
 Get a SSL certificate signed by a Let's Encrypt (ACME) certificate authority and
-output that signed certificate. You do NOT need to run this script on your
-server and this script does not ask for your private keys. It will print out
-commands that you need to run with your private key or on your server as root,
-which gives you a chance to review the commands instead of trusting this script.
+output that signed certificate.
 
 NOTE: YOUR ACCOUNT KEY NEEDS TO BE DIFFERENT FROM YOUR DOMAIN KEY.
 
@@ -433,13 +430,12 @@ $ openssl genrsa 4096 > user.key
 $ openssl rsa -in user.key -pubout > user.pub
 $ openssl genrsa 4096 > domain.key
 $ openssl req -new -sha256 -key domain.key -subj "/CN=example.com" > domain.csr
-$ python sign_csr.py --public-key user.pub domain.csr > signed.crt
+$ python sign_csr.py --email you@example.com --public-key user.pub domain.csr > signed.crt
 --------------
 
 """)
     parser.add_argument("-p", "--public-key", required=True, help="path to your account public key")
     parser.add_argument("-e", "--email", default=None, help="contact email, default is webmaster@<shortest_domain>")
-    parser.add_argument("-f", "--file-based", action='store_true', help="if set, a file-based response is used")
     parser.add_argument("csr_path", help="path to your certificate signing request")
 
     args = parser.parse_args()
