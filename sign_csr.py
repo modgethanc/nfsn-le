@@ -16,7 +16,6 @@ def sign_csr(pubkey, csr, email=None):
     :rtype: string
 
     """
-    #CA = "https://acme-staging.api.letsencrypt.org"
     CA = "https://acme-v01.api.letsencrypt.org"
     TERMS = "https://letsencrypt.org/documents/LE-SA-v1.0.1-July-27-2015.pdf"
     nonce_req = urllib2.Request("{0}/directory".format(CA))
@@ -156,28 +155,11 @@ def sign_csr(pubkey, csr, email=None):
     csr_file_sig = tempfile.NamedTemporaryFile(dir=".", prefix="cert_", suffix=".sig")
     csr_file_sig_name = os.path.basename(csr_file_sig.name)
 
-    # Step 5: Ask the user to sign the registration and requests
-    #sys.stderr.write("""\
-#STEP 2: You need to sign some files (replace 'user.key' with your user private key).
-#
-#openssl dgst -sha256 -sign user.key -out {0} {1}
-#{2}
-#openssl dgst -sha256 -sign user.key -out {3} {4}
-#
-#""".format(
-#    reg_file_sig_name, reg_file_name,
-#    "\n".join("openssl dgst -sha256 -sign user.key -out {0} {1}".format(i['sig_name'], i['file_name']) for i in ids),
-#    csr_file_sig_name, csr_file_name))
-
+    # Step 5: Sign the registration and requests
     subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(reg_file_sig_name, reg_file_name), shell=True)
     for i in ids:
         subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(i['sig_name'], i['file_name']), shell=True)
     subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(csr_file_sig_name, csr_file_name), shell=True)
-
-    #stdout = sys.stdout
-    #sys.stdout = sys.stderr
-    #raw_input("Press Enter when you've run the above commands in a new terminal window...")
-    #sys.stdout = stdout
 
     # Step 6: Load the signatures
     reg_file_sig.seek(0)
@@ -271,23 +253,9 @@ def sign_csr(pubkey, csr, email=None):
             "data": keyauthorization,
         })
 
-    # Step 9: Ask the user to sign the challenge responses
-    #sys.stderr.write("""\
-#STEP 3: You need to sign some more files (replace 'user.key' with your user private key).
-#
-#{0}
-#
-#""".format(
-#    "\n".join("openssl dgst -sha256 -sign user.key -out {0} {1}".format(
-#        i['sig_name'], i['file_name']) for i in tests)))
-
+    # Step 9: Sign the challenge responses
     for i in tests:
         subprocess.check_call('openssl dgst -sha256 -sign user.key -out {0} {1}'.format(i['sig_name'], i['file_name']), shell=True)
-
-#    stdout = sys.stdout
-#    sys.stdout = sys.stderr
-#    raw_input("Press Enter when you've run the above commands in a new terminal window...")
-#    sys.stdout = stdout
 
     # Step 10: Load the response signatures
     for n, i in enumerate(ids):
@@ -296,34 +264,15 @@ def sign_csr(pubkey, csr, email=None):
 
     # Step 11: Ask the user to host the token on their server
     for n, i in enumerate(ids):
-        
+
         # Write the data to the location specified.
         out_file = open('/home/public/{}'.format(responses[n]['uri']), "w")
         out_file.write(responses[n]['data'])
         out_file.close()
-        
+
         # Sleep for 5 seconds, to allow for the change to reach the server.
         time.sleep(5)
-        
-        #sys.stderr.write("""\
-#STEP {0}: Please update your server to serve the following file at this URL:
-#
-#--------------
-#URL: http://{1}/{2}
-#File contents: \"{3}\"
-#--------------
-#
-#Notes:
-#- Do not include the quotes in the file.
-#- The file should be one line without any spaces.
-#
-#""".format(n + 4, i['domain'], responses[n]['uri'], responses[n]['data']))
 
-        #stdout = sys.stdout
-        #sys.stdout = sys.stderr
-        #raw_input("Press Enter when you've got the file hosted on your server...")
-        #sys.stdout = stdout
-        
         # Step 12: Let the CA know you're ready for the challenge
         #sys.stderr.write("Requesting verification for {0}...\n".format(i['domain']))
         test_data = json.dumps({
@@ -394,7 +343,7 @@ def sign_csr(pubkey, csr, email=None):
     sys.stderr.write("Certificate signed!\n")
 
     sys.stderr.write("You can remove the acme-challenge file from your webserver now.\n")
-    
+
     signed_der64 = base64.b64encode(signed_der)
     signed_pem = """\
 -----BEGIN CERTIFICATE-----
@@ -417,13 +366,6 @@ Prerequisites:
 * openssl
 * python
 
-Example: Generate an account keypair, a domain key and csr, and have the domain csr signed.
---------------
-$ openssl genrsa 4096 > user.key
-$ openssl rsa -in user.key -pubout > user.pub
-$ openssl genrsa 4096 > domain.key
-$ openssl req -new -sha256 -key domain.key -subj "/CN=example.com" > domain.csr
-$ python sign_csr.py --email you@example.com --public-key user.pub domain.csr > signed.crt
 --------------
 
 """)
@@ -434,4 +376,3 @@ $ python sign_csr.py --email you@example.com --public-key user.pub domain.csr > 
     args = parser.parse_args()
     signed_crt = sign_csr(args.public_key, args.csr_path, email=args.email)
     sys.stdout.write(signed_crt)
-
