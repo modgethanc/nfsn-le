@@ -17,5 +17,5 @@ else
 	# Certificate has less than one month to go, renewal is needed.
 	mv $1.crt $1.crt.bak
 	mv $1.key $1.key.bak
-	./new_cert.sh $1 $2
+	./nfsn-le/new_cert.sh $1 $2
 fi
