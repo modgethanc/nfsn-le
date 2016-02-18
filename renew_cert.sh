@@ -15,7 +15,8 @@ then
 	exit 0
 else
 	# Certificate has less than one month to go, renewal is needed.
-	mv $1.crt $1.crt.bak
-	mv $1.key $1.key.bak
+	mkdir -p backups
+	mv $1.crt backups/$1.crt.bak
+	mv $1.key backups/$1.key.bak
 	/home/protected/ssl/nfsn-le/new_cert.sh $1 $2
 fi
