@@ -9,7 +9,7 @@ set -e
 cd /home/protected/ssl
 
 # Check if certificate is in need of renewal.
-if openssl x509 -checkend 2592000 -noout -in $1.crt
+if openssl x509 -checkend 3000000 -noout -in $1.crt
 then
 	# Certificate is still valid.
 	exit 0
