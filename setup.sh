@@ -5,7 +5,6 @@ set -e
 # Usage:
 #
 # ./setup.sh example.com me@example.com
-# email address is optional, not required for anonymous registrations
 
 cd /home/private/nfsn-le
 

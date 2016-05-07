@@ -16,11 +16,5 @@ openssl genrsa 4096 > "/home/protected/ssl/$1.key"
 openssl req -new -sha256 -key "/home/protected/ssl/$1.key" -subj "/CN=$1" > $1.csr
 
 mkdir -p /home/public/.well-known/acme-challenge
-if [ -z "$2" ]
-then
-	echo "Using anonymous registration."
-	python ./sign_csr.py --public-key user.pub $1.csr > "/home/protected/ssl/$1.crt"
-else
-	python ./sign_csr.py --public-key user.pub --email $2 $1.csr > "/home/protected/ssl/$1.crt"
-fi
+python ./sign_csr.py --public-key user.pub --email "$2" "$1.csr" > "/home/protected/ssl/$1.crt"
 rm -rf $1.csr *.json *.sig /home/public/.well-known
