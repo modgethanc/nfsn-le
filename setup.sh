@@ -16,9 +16,6 @@ then
 	openssl rsa -in user.key -pubout > user.pub
 fi
 
-# Generate new cert.
-./new_cert.sh $1 $2
-
 # Output renewal task.
 echo <<EOM
 Add this as a scheduled task:
@@ -30,3 +27,6 @@ day: friday
 hour: 0
 date: *
 EOM
+
+# Generate new cert.
+./new_cert.sh $1 $2
