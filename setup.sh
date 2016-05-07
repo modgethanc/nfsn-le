@@ -10,7 +10,7 @@ set -e
 cd /home/private/nfsn-le
 
 # Check for existing LE keys.
-if [ ! -f "user.key"] && [ ! -f "user.pub" ]
+if [ ! -f "user.key" ] && [ ! -f "user.pub" ]
 then
 	echo "Generating new LE keys"
 	openssl genrsa 4096 > user.key
