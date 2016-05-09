@@ -17,11 +17,11 @@ then
 fi
 
 # Output renewal task.
-echo <<EOM
+cat <<EOM
 Add this as a scheduled task:
 
 tag: tls$1
-shell command: /home/private/nfsn-le/renew.sh "$1" "$2"
+shell command: /home/private/nfsn-le/renew.sh $1 $2
 user: 'me'
 day: friday
 hour: 0
