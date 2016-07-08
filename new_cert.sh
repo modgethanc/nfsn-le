@@ -7,7 +7,7 @@ set -e
 # ./new_cert.sh example.com me@example.com
 # user.key and user.pub already exist in the current directory.
 
-$certsdir = "/home/protected/certs"
+certsdir="/home/protected/certs"
 
 cd /home/private/nfsn-le
 mkdir -p $certsdir
