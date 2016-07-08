@@ -6,8 +6,8 @@ set -e
 #
 # ./renew_cert.sh example.com me@example.com
 
-$certsdir = "/home/protected/certs"
-$backupdir = "/home/protected/certbackup"
+certsdir="/home/protected/certs"
+backupdir="/home/protected/certbackup"
 
 cd /home/private/nfsn-le
 
