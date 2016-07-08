@@ -18,4 +18,4 @@ openssl req -new -sha256 -key "certs/$1.key" -subj "/CN=$1" > $1.csr
 mkdir -p /home/public/.well-known/acme-challenge
 python ./sign_csr.py --public-key user.pub --email "$2" "$1.csr" > "certs/$1.crt"
 rm -rf $1.csr *.json *.sig /home/public/.well-known
-echo "'cat certs/*' for info to supply to nfsn"
+cat "certs/*" | nfsn -i set-tls
