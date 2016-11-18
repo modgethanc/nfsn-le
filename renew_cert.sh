@@ -19,7 +19,7 @@ then
 else
 	echo "Certificate for $1 is in need of renewal".
 	mkdir -p $backupdir
-	mv "$certsdir/$1.crt" "backups/$1.crt"
-	mv "$certsdir/$1.key" "backups/$1.key"
+	mv "$certsdir/$1.crt" "$backupdir/$1.crt"
+	mv "$certsdir/$1.key" "$backupdir/$1.key"
 	./new_cert.sh "$1" "$2"
 fi
