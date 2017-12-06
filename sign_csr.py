@@ -17,7 +17,7 @@ def sign_csr(pubkey, csr, email=None):
 
     """
     CA = "https://acme-v01.api.letsencrypt.org"
-    TERMS = "https://letsencrypt.org/documents/LE-SA-v1.1.1-August-1-2016.pdf"
+    TERMS = "https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf"
     nonce_req = urllib2.Request("{0}/directory".format(CA))
     nonce_req.get_method = lambda : 'HEAD'
 
